@@ -3,34 +3,43 @@ const mongoose = require("mongoose");
 const bookSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
 
     author: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Author",
         required: true
     },
 
     category: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Category",
         required: true
     },
 
     isbn: {
         type: String,
-        unique: true
+        unique: true,
+        required: true
     },
 
-    description: String,
+    description: {
+        type: String,
+        default: ""
+    },
 
     totalCopies: {
         type: Number,
-        default: 1
+        default: 1,
+        min: 0
     },
 
     availableCopies: {
         type: Number,
-        default: 1
+        default: 1,
+        min: 0
     },
 
     isArchived: {

@@ -1,24 +1,99 @@
 const Reservation = require("../models/Reservation");
 
-const createReservation = async (req, res) => {
-    const data = await Reservation.create({
-        user: req.user._id,
-        book: req.body.book
-    });
+// 🔐 CREATE RESERVATION
+const createReservation = async (req, res, next) => {
+    try {
 
-    res.status(201).json(data);
+        const reservation = await Reservation.create({
+            user: req.user._id, // JWT
+            book: req.body.book,
+            status: "pending"
+        });
+
+        res.status(201).json({
+            success: true,
+            data: reservation
+        });
+
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getMyReservations = async (req, res) => {
-    res.json(await Reservation.find({ user: req.user._id }));
+// 📚 GET MY RESERVATIONS
+const getMyReservations = async (req, res, next) => {
+    try {
+
+        const reservations = await Reservation.find({
+            user: req.user._id
+        }).populate("book");
+
+        res.json({
+            success: true,
+            count: reservations.length,
+            data: reservations
+        });
+
+    } catch (error) {
+        next(error);
+    }
 };
 
-const getAllReservations = async (req, res) => {
-    res.json(await Reservation.find());
+// 📊 GET ALL (LIBRARIAN)
+const getAllReservations = async (req, res, next) => {
+    try {
+
+        const reservations = await Reservation.find()
+            .populate("user")
+            .populate("book");
+
+        res.json({
+            success: true,
+            count: reservations.length,
+            data: reservations
+        });
+
+    } catch (error) {
+        next(error);
+    }
 };
 
-const updateReservationStatus = async (req, res) => {
-    res.json(await Reservation.findByIdAndUpdate(req.params.id, req.body, { new: true }));
+// 🔄 UPDATE STATUS (SAFE)
+const updateReservationStatus = async (req, res, next) => {
+    try {
+
+        const { status } = req.body;
+
+        const allowedStatus = ["pending", "approved", "cancelled"];
+
+        if (!allowedStatus.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Status invalide"
+            });
+        }
+
+        const reservation = await Reservation.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+
+        if (!reservation) {
+            return res.status(404).json({
+                success: false,
+                message: "Réservation introuvable"
+            });
+        }
+
+        res.json({
+            success: true,
+            data: reservation
+        });
+
+    } catch (error) {
+        next(error);
+    }
 };
 
 module.exports = {

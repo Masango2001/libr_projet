@@ -6,23 +6,15 @@ const penaltySchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-
     borrow: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Borrow",
         required: true
     },
-
     amount: {
         type: Number,
         required: true
     },
-
-    reason: {
-        type: String,
-        required: true
-    },
-
     status: {
         type: String,
         enum: ["unpaid", "paid"],
@@ -32,7 +24,4 @@ const penaltySchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model(
-    "Penalty",
-    penaltySchema
-);
+module.exports = mongoose.model("Penalty", penaltySchema);

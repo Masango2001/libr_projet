@@ -1,37 +1,82 @@
 const Book = require("../models/Book");
 
-// GET ALL
+// GET ALL BOOKS
 const getBooks = async (req, res) => {
-    const books = await Book.find();
-    res.json(books);
+    try {
+        const books = await Book.find();
+        res.json(books);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-// GET ONE
+// GET BOOK BY ID
 const getBookById = async (req, res) => {
-    const book = await Book.findById(req.params.id);
-    res.json(book);
+    try {
+        const book = await Book.findById(req.params.id);
+
+        if (!book) {
+            return res.status(404).json({ message: "Book not found" });
+        }
+
+        res.json(book);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-// CREATE
+// CREATE BOOK
 const createBook = async (req, res) => {
-    const book = await Book.create(req.body);
-    res.status(201).json(book);
+    try {
+        const book = await Book.create(req.body);
+        res.status(201).json(book);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 };
 
-// UPDATE
+// UPDATE BOOK
 const updateBook = async (req, res) => {
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(book);
+    try {
+        const book = await Book.findByIdAndUpdate(
+            req.params.id,
+            req.body,
+            { new: true, runValidators: true }
+        );
+
+        if (!book) {
+            return res.status(404).json({ message: "Book not found" });
+        }
+
+        res.json(book);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
 };
 
-// ARCHIVE (soft delete)
+// ARCHIVE BOOK (soft delete)
 const archiveBook = async (req, res) => {
-    const book = await Book.findByIdAndUpdate(
-        req.params.id,
-        { isArchived: true },
-        { new: true }
-    );
-    res.json(book);
+    try {
+        const book = await Book.findByIdAndUpdate(
+            req.params.id,
+            { isArchived: true },
+            { new: true }
+        );
+
+        if (!book) {
+            return res.status(404).json({ message: "Book not found" });
+        }
+
+        res.json(book);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
 };
 
-module.exports = { getBooks, getBookById, createBook, updateBook, archiveBook };
+module.exports = {
+    getBooks,
+    getBookById,
+    createBook,
+    updateBook,
+    archiveBook
+};

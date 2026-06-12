@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 
+const DEFAULT_BORROW_DURATION_DAYS = 14;
+
 const borrowSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +22,8 @@ const borrowSchema = new mongoose.Schema({
 
     dueDate: {
         type: Date,
-        required: true
+        required: true,
+        default: () => new Date(Date.now() + DEFAULT_BORROW_DURATION_DAYS * 24 * 60 * 60 * 1000)
     },
 
     returnDate: Date,
