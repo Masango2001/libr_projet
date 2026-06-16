@@ -1,9 +1,10 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const path = require("path");
 const swaggerUi = require("swagger-ui-express");
 
 // ✅ FIX IMPORTANT
-dotenv.config({ path: "../.env" });
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 // DB
 const connectDB = require("./config/db");

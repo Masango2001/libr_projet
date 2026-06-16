@@ -2,13 +2,31 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// REGISTER
-const register = async (req, res) => {
+const sanitizeUser = (user) => {
+    const safeUser = user.toObject ? user.toObject() : { ...user };
+    delete safeUser.password;
+    return safeUser;
+};
+
+const register = async (req, res, next) => {
     try {
         const { firstName, lastName, email, password } = req.body;
 
+        if (!firstName || !lastName || !email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "firstName, lastName, email et password sont obligatoires."
+            });
+        }
+
         const exist = await User.findOne({ email });
-        if (exist) return res.status(400).json({ message: "Email déjà utilisé" });
+
+        if (exist) {
+            return res.status(400).json({
+                success: false,
+                message: "Email deja utilise."
+            });
+        }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -19,25 +37,51 @@ const register = async (req, res) => {
             password: hashedPassword
         });
 
-        res.status(201).json(user);
+        res.status(201).json({
+            success: true,
+            data: sanitizeUser(user)
+        });
 
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        next(error);
     }
 };
 
-// LOGIN
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            return res.status(400).json({
+                success: false,
+                message: "Email et password sont obligatoires."
+            });
+        }
+
         const user = await User.findOne({ email });
-        if (!user) return res.status(401).json({ message: "Email incorrect" });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "Email incorrect."
+            });
+        }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(401).json({ message: "Mot de passe incorrect" });
 
-        if (!user.isActive) return res.status(403).json({ message: "Compte désactivé" });
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Mot de passe incorrect."
+            });
+        }
+
+        if (!user.isActive) {
+            return res.status(403).json({
+                success: false,
+                message: "Compte desactive."
+            });
+        }
 
         const token = jwt.sign(
             { id: user._id, role: user.role },
@@ -45,16 +89,22 @@ const login = async (req, res) => {
             { expiresIn: "1d" }
         );
 
-        res.json({ token, user });
+        res.json({
+            success: true,
+            token,
+            user: sanitizeUser(user)
+        });
 
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    } catch (error) {
+        next(error);
     }
 };
 
-// PROFILE
 const getProfile = async (req, res) => {
-    res.json(req.user);
+    res.json({
+        success: true,
+        data: req.user
+    });
 };
 
 module.exports = { register, login, getProfile };
