@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Author</title>
+    <link rel="stylesheet" href="authors.css">
+</head>
+<body>
+
+<div class="form-box">
+    <h2>Edit Author</h2>
+
+    <input id="name">
+    <textarea id="bio"></textarea>
+
+    <button class="btn btn-warning" onclick="update()">Update</button>
+</div>
+
+<script src="authors.js"></script>
+
+<script>
+const id = new URLSearchParams(location.search).get("id");
+
+async function load() {
+    const a = await getAuthorById(id);
+    document.getElementById("name").value = a.name;
+    document.getElementById("bio").value = a.biography;
+}
+
+async function update() {
+    await updateAuthor(id, {
+        name: document.getElementById("name").value,
+        biography: document.getElementById("bio").value
+    });
+
+    location.href = "authors.html";
+}
+
+load();
+</script>
+
+</body>
+</html>

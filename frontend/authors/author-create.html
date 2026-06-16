@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Author</title>
+    <link rel="stylesheet" href="authors.css">
+</head>
+<body>
+
+<div class="form-box">
+    <h2>Create Author</h2>
+
+    <input id="name" placeholder="Name">
+    <textarea id="bio" placeholder="Biography"></textarea>
+
+    <button class="btn btn-success" onclick="save()">Save</button>
+
+    <p id="msg"></p>
+</div>
+
+<script src="authors.js"></script>
+
+<script>
+async function save() {
+    const name = document.getElementById("name").value;
+    const biography = document.getElementById("bio").value;
+
+    const res = await createAuthor({ name, biography });
+
+    const msg = document.getElementById("msg");
+
+    if (res.success) {
+        msg.style.color = "green";
+        msg.innerText = "Author created";
+        setTimeout(() => location.href = "authors.html", 1000);
+    } else {
+        msg.style.color = "red";
+        msg.innerText = res.message;
+    }
+}
+</script>
+
+</body>
+</html>

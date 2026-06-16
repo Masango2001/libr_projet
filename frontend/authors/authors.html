@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Authors</title>
+    <link rel="stylesheet" href="authors.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>Authors</h1>
+
+    <a class="btn btn-success" href="author-create.html">+ Add Author</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Biography</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="authorsTable"></tbody>
+    </table>
+</div>
+
+<script src="authors.js"></script>
+
+<script>
+async function load() {
+    const res = await getAuthors();
+    const table = document.getElementById("authorsTable");
+
+    table.innerHTML = "";
+
+    res.data.forEach(a => {
+        table.innerHTML += `
+        <tr>
+            <td>${a.name}</td>
+            <td>${a.biography}</td>
+            <td>
+                <a class="btn btn-primary" href="author-details.html?id=${a._id}">View</a>
+                <a class="btn btn-warning" href="author-edit.html?id=${a._id}">Edit</a>
+                <button class="btn btn-danger" onclick="del('${a._id}')">Archive</button>
+            </td>
+        </tr>`;
+    });
+}
+
+async function del(id) {
+    await archiveAuthor(id);
+    load();
+}
+
+load();
+</script>
+
+</body>
+</html>
