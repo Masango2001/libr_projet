@@ -13,6 +13,14 @@ async function loadBooks() {
         tbody.innerHTML = "";
 
         res.data.forEach(book => {
+            const actions = [
+                `<a href="book-details.html?id=${book._id}">Voir</a>`
+            ];
+
+            if (isLibrarian()) {
+                actions.push(`<a href="book-edit.html?id=${book._id}">Modifier</a>`);
+                actions.push(`<button onclick="archiveBook('${book._id}')">Archiver</button>`);
+            }
 
             tbody.innerHTML += `
                 <tr>
@@ -24,17 +32,7 @@ async function loadBooks() {
                         ${book.isArchived ? "Archivé" : "Disponible"}
                     </td>
                     <td>
-                        <a href="book-details.html?id=${book._id}">
-                            Voir
-                        </a>
-
-                        <a href="book-edit.html?id=${book._id}">
-                            Modifier
-                        </a>
-
-                        <button onclick="archiveBook('${book._id}')">
-                            Archiver
-                        </button>
+                        ${actions.join("")}
                     </td>
                 </tr>
             `;
@@ -194,6 +192,7 @@ async function updateBook(e, id) {
    ARCHIVE BOOK
 ========================= */
 async function archiveBook(id) {
+    if (!isLibrarian()) return;
 
     try {
 
@@ -226,6 +225,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const editForm = document.getElementById("editBookForm");
 
     if (createForm) {
+        requireRole("librarian");
         createForm.addEventListener("submit", createBook);
     }
 
@@ -234,6 +234,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     if (id && editForm) {
+        requireRole("librarian");
         loadBookForEdit(id);
         editForm.addEventListener("submit", (e) => updateBook(e, id));
     }

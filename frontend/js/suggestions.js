@@ -1,3 +1,56 @@
+const SUGGESTION_STATUS_LABELS = {
+    pending: "En attente",
+    approved: "Approuvee",
+    rejected: "Rejetee"
+};
+
+const SUGGESTION_STATUS_CLASSES = {
+    pending: "status-pending",
+    approved: "status-approved",
+    rejected: "status-rejected"
+};
+
+function renderSuggestionStatus(status) {
+    const label = SUGGESTION_STATUS_LABELS[status] || status;
+    const statusClass = SUGGESTION_STATUS_CLASSES[status] || "status-pending";
+
+    return `<span class="status-badge ${statusClass}">${label}</span>`;
+}
+
+function renderSuggestionActions(suggestion) {
+    const actions = [
+        `<a href="suggestion-details.html?id=${suggestion._id}">Voir</a>`
+    ];
+
+    if (isLibrarian() && suggestion.status === "pending") {
+        actions.push(`
+            <button type="button" class="btn btn-success btn-sm" onclick="changeSuggestionStatus('${suggestion._id}', 'approved')">
+                Approuver
+            </button>
+        `);
+        actions.push(`
+            <button type="button" class="btn btn-danger btn-sm" onclick="changeSuggestionStatus('${suggestion._id}', 'rejected')">
+                Rejeter
+            </button>
+        `);
+    }
+
+    return `<div class="actions">${actions.join("")}</div>`;
+}
+
+async function changeSuggestionStatus(id, status) {
+    try {
+        await API.SuggestionsAPI.updateStatus(id, status);
+        notify("Statut de suggestion mis a jour", "success");
+        loadSuggestions();
+
+        if (document.getElementById("status")) {
+            loadSuggestionDetails(id);
+        }
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
 
 /* ================= LOAD SUGGESTIONS ================= */
 async function loadSuggestions() {
@@ -19,14 +72,8 @@ async function loadSuggestions() {
                 <tr>
                     <td>${s.title}</td>
                     <td>${s.author || "-"}</td>
-                    <td>${s.status}</td>
-                    <td>
-
-                        <a href="suggestion-details.html?id=${s._id}">
-                            Voir
-                        </a>
-
-                    </td>
+                    <td>${renderSuggestionStatus(s.status)}</td>
+                    <td>${renderSuggestionActions(s)}</td>
                 </tr>
             `;
         });
@@ -76,7 +123,12 @@ async function loadSuggestionDetails(id) {
         document.getElementById("title").textContent = suggestion.title;
         document.getElementById("author").textContent = suggestion.author || "-";
         document.getElementById("comment").textContent = suggestion.comment || "-";
-        document.getElementById("status").textContent = suggestion.status;
+        document.getElementById("status").innerHTML = renderSuggestionStatus(suggestion.status);
+
+        const actions = document.getElementById("suggestionActions");
+        if (actions) {
+            actions.innerHTML = renderSuggestionActions(suggestion);
+        }
 
     } catch (err) {
         notify(err.message, "error");
@@ -94,6 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("suggestionForm");
 
     if (form) {
+        requireRole("member");
         form.addEventListener("submit", createSuggestion);
     }
 

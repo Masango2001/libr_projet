@@ -3,6 +3,11 @@ function getToken() {
     return localStorage.getItem("token");
 }
 
+function getUser() {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+}
+
 // ================= LOGOUT =================
 function logout() {
     localStorage.removeItem("token");
@@ -21,27 +26,37 @@ function logout() {
 async function loadDashboard() {
 
     try {
+        const user = getUser();
+        const isLibrarian = user?.role === "librarian";
 
         const headers = {
             Authorization: `Bearer ${getToken()}`
         };
 
-        const [users, books, categories, borrows, reservations, penalties] =
+        const fetchCount = async (endpoint) => {
+            const res = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, { headers });
+            const data = await res.json();
+            return data.count || 0;
+        };
+
+        const [books, categories, borrows, reservations, penalties] =
             await Promise.all([
-                fetch(`${CONFIG.API_BASE_URL}/users`, { headers }).then(r => r.json()),
-                fetch(`${CONFIG.API_BASE_URL}/books`, { headers }).then(r => r.json()),
-                fetch(`${CONFIG.API_BASE_URL}/categories`, { headers }).then(r => r.json()),
-                fetch(`${CONFIG.API_BASE_URL}/borrows`, { headers }).then(r => r.json()),
-                fetch(`${CONFIG.API_BASE_URL}/reservations`, { headers }).then(r => r.json()),
-                fetch(`${CONFIG.API_BASE_URL}/penalties`, { headers }).then(r => r.json())
+                fetchCount("/books"),
+                fetchCount("/categories"),
+                fetchCount(isLibrarian ? "/borrows" : "/borrows/my"),
+                fetchCount(isLibrarian ? "/reservations" : "/reservations/my"),
+                fetchCount(isLibrarian ? "/penalties" : "/penalties/my")
             ]);
 
-        document.getElementById("usersCount").textContent = users.count || 0;
-        document.getElementById("booksCount").textContent = books.count || 0;
-        document.getElementById("categoriesCount").textContent = categories.count || 0;
-        document.getElementById("borrowsCount").textContent = borrows.count || 0;
-        document.getElementById("reservationsCount").textContent = reservations.count || 0;
-        document.getElementById("penaltiesCount").textContent = penalties.count || 0;
+        if (isLibrarian && document.getElementById("usersCount")) {
+            document.getElementById("usersCount").textContent = await fetchCount("/users");
+        }
+
+        document.getElementById("booksCount").textContent = books;
+        document.getElementById("categoriesCount").textContent = categories;
+        document.getElementById("borrowsCount").textContent = borrows;
+        document.getElementById("reservationsCount").textContent = reservations;
+        document.getElementById("penaltiesCount").textContent = penalties;
 
     } catch (err) {
         console.error(err);

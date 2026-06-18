@@ -1,4 +1,67 @@
 
+const RESERVATION_STATUS_LABELS = {
+    pending: "En attente - non validee",
+    approved: "Validee",
+    cancelled: "Refusee",
+    completed: "Terminee"
+};
+
+const RESERVATION_STATUS_CLASSES = {
+    pending: "status-pending",
+    approved: "status-approved",
+    cancelled: "status-cancelled",
+    completed: "status-completed"
+};
+
+function getReservationStatusLabel(status) {
+    return RESERVATION_STATUS_LABELS[status] || status;
+}
+
+function renderReservationStatus(status) {
+    const statusClass = RESERVATION_STATUS_CLASSES[status] || "status-pending";
+
+    return `
+        <span class="status-badge ${statusClass}">
+            ${getReservationStatusLabel(status)}
+        </span>
+    `;
+}
+
+function renderReservationActions(reservation) {
+    const actions = [
+        `<a href="reservation-details.html?id=${reservation._id}">Voir</a>`
+    ];
+
+    if (isLibrarian() && reservation.status === "pending") {
+        actions.push(`
+            <button type="button" class="btn btn-success btn-sm reservation-action" onclick="changeReservationStatus('${reservation._id}', 'approved')">
+                Valider
+            </button>
+        `);
+        actions.push(`
+            <button type="button" class="btn btn-danger btn-sm reservation-action" onclick="changeReservationStatus('${reservation._id}', 'cancelled')">
+                Refuser
+            </button>
+        `);
+    }
+
+    return `<div class="actions">${actions.join("")}</div>`;
+}
+
+async function changeReservationStatus(id, status) {
+    try {
+        await API.ReservationsAPI.updateStatus(id, status);
+        notify("Statut de reservation mis a jour", "success");
+        loadReservations();
+
+        if (document.getElementById("status")) {
+            loadReservationDetails(id);
+        }
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
+
 /* ================= LOAD ALL RESERVATIONS ================= */
 async function loadReservations() {
 
@@ -17,16 +80,10 @@ async function loadReservations() {
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${r.book.title}</td>
+                    <td>${r.book?.title || "-"}</td>
                     <td>${r.user?.firstName || "Moi"}</td>
-                    <td>${r.status}</td>
-                    <td>
-
-                        <a href="reservation-details.html?id=${r._id}">
-                            Voir
-                        </a>
-
-                    </td>
+                    <td>${renderReservationStatus(r.status)}</td>
+                    <td>${renderReservationActions(r)}</td>
                 </tr>
             `;
         });
@@ -99,8 +156,13 @@ async function loadReservationDetails(id) {
         document.getElementById("user").textContent =
             reservation.user?.firstName || "Moi";
 
-        document.getElementById("status").textContent =
-            reservation.status;
+        document.getElementById("status").innerHTML =
+            renderReservationStatus(reservation.status);
+
+        const actions = document.getElementById("reservationActions");
+        if (actions) {
+            actions.innerHTML = renderReservationActions(reservation);
+        }
 
     } catch (err) {
         notify(err.message, "error");
@@ -118,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("reservationForm");
 
     if (form) {
+        requireRole("member");
         loadReservationBooks();
         form.addEventListener("submit", createReservation);
     }

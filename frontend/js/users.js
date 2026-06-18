@@ -7,19 +7,39 @@ async function loadUsers() {
         tbody.innerHTML = "";
 
         result.data.forEach(user => {
+            const statusActionLabel = user.isActive ? "Desactiver" : "Activer";
+            const statusActionClass = user.isActive ? "btn-danger" : "btn-success";
+
             tbody.innerHTML += `
                 <tr>
                     <td>${user.firstName || ""} ${user.lastName || ""}</td>
                     <td>${user.email || "-"}</td>
                     <td>${user.role || "-"}</td>
-                    <td>${user.isActive ? "Oui" : "Non"}</td>
+                    <td>${user.isActive ? "Actif" : "Inactif"}</td>
                     <td class="actions">
                         <a class="btn btn-info" href="user-details.html?id=${user._id}">Voir</a>
                         <a class="btn btn-warning" href="user-edit.html?id=${user._id}">Modifier</a>
+                        <button class="btn ${statusActionClass}" onclick="toggleUserStatus('${user._id}', ${!user.isActive})">
+                            ${statusActionLabel}
+                        </button>
                     </td>
                 </tr>
             `;
         });
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
+
+async function toggleUserStatus(id, isActive) {
+    const label = isActive ? "activer" : "desactiver";
+
+    if (!confirm(`Voulez-vous ${label} cet utilisateur ?`)) return;
+
+    try {
+        await API.UsersAPI.update(id, { isActive });
+        notify(`Utilisateur ${isActive ? "active" : "desactive"}`, "success");
+        loadUsers();
     } catch (err) {
         notify(err.message, "error");
     }
@@ -76,6 +96,7 @@ async function updateUser(e, id) {
 
 document.addEventListener("DOMContentLoaded", () => {
     requireAuth();
+    requireRole("librarian");
 
     const id = new URLSearchParams(window.location.search).get("id");
     const editForm = document.getElementById("editUserForm");

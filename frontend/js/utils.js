@@ -60,6 +60,21 @@ function isMember() {
     return user && user.role === "member";
 }
 
+function applyRoleVisibility() {
+    const user = getUser();
+    const role = user?.role;
+
+    document.querySelectorAll("[data-roles]").forEach(el => {
+        const roles = el.dataset.roles
+            .split(",")
+            .map(item => item.trim());
+
+        if (!role || !roles.includes(role)) {
+            el.remove();
+        }
+    });
+}
+
 /* =========================================================
    🎨 UI HELPERS
 ========================================================= */
@@ -190,4 +205,7 @@ function createScrollControls() {
     document.body.appendChild(wrapper);
 }
 
-document.addEventListener("DOMContentLoaded", createScrollControls);
+document.addEventListener("DOMContentLoaded", () => {
+    applyRoleVisibility();
+    createScrollControls();
+});

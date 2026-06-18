@@ -13,6 +13,13 @@ async function loadBorrows() {
         table.innerHTML = "";
 
         res.data.forEach(borrow => {
+            const actions = [
+                `<a href="borrow-details.html?id=${borrow._id}">Voir</a>`
+            ];
+
+            if (["borrowed", "overdue"].includes(borrow.status)) {
+                actions.push(`<a href="borrow-return.html?id=${borrow._id}">Retour</a>`);
+            }
 
             table.innerHTML += `
                 <tr>
@@ -22,8 +29,9 @@ async function loadBorrows() {
                     </td>
 
                     <td>
-                        ${borrow.user?.firstName || ""}
-                        ${borrow.user?.lastName || ""}
+                        ${borrow.user
+                            ? `${borrow.user.firstName || ""} ${borrow.user.lastName || ""}`
+                            : "Moi"}
                     </td>
 
                     <td>
@@ -39,15 +47,7 @@ async function loadBorrows() {
                     </td>
 
                     <td>
-
-                        <a href="borrow-details.html?id=${borrow._id}">
-                            Voir
-                        </a>
-
-                        <a href="borrow-return.html?id=${borrow._id}">
-                            Retour
-                        </a>
-
+                        ${actions.join("")}
                     </td>
 
                 </tr>
@@ -203,6 +203,7 @@ document.addEventListener(
             document.getElementById("borrowForm");
 
         if (form) {
+            requireRole("member");
 
             form.addEventListener(
                 "submit",

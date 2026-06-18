@@ -15,14 +15,14 @@
     <aside class="sidebar">
         <h2>Library</h2>
         <a href="dashboard.html">Dashboard</a>
-        <a href="../books/books.html">Livres</a>
-        <a href="../authors/authors.html">Auteurs</a>
-        <a href="../categories/categories.html">Categories</a>
-        <a href="../users/users.html">Utilisateurs</a>
-        <a href="../borrows/borrows.html">Emprunts</a>
-        <a href="../reservations/reservations.html">Reservations</a>
-        <a href="../penalties/penalties.html">Penalites</a>
-        <a href="../suggestions/suggestions.html">Suggestions</a>
+        <a href="../books/books.html" data-roles="member,librarian">Livres</a>
+        <a href="../authors/authors.html" data-roles="member,librarian">Auteurs</a>
+        <a href="../categories/categories.html" data-roles="member,librarian">Categories</a>
+        <a href="../users/users.html" data-roles="librarian">Utilisateurs</a>
+        <a href="../borrows/borrows.html" data-roles="member,librarian">Emprunts</a>
+        <a href="../reservations/reservations.html" data-roles="member,librarian">Reservations</a>
+        <a href="../penalties/penalties.html" data-roles="member,librarian">Penalites</a>
+        <a href="../suggestions/suggestions.html" data-roles="member,librarian">Suggestions</a>
         <button onclick="logout()">Deconnexion</button>
     </aside>
 
@@ -35,12 +35,12 @@
         </div>
 
         <section class="cards">
-            <div class="card"><h3>Utilisateurs</h3><p id="usersCount">0</p></div>
-            <div class="card"><h3>Livres</h3><p id="booksCount">0</p></div>
-            <div class="card"><h3>Categories</h3><p id="categoriesCount">0</p></div>
-            <div class="card"><h3>Emprunts</h3><p id="borrowsCount">0</p></div>
-            <div class="card"><h3>Reservations</h3><p id="reservationsCount">0</p></div>
-            <div class="card"><h3>Penalites</h3><p id="penaltiesCount">0</p></div>
+            <div class="card" data-roles="librarian"><h3>Utilisateurs</h3><p id="usersCount">0</p></div>
+            <div class="card" data-roles="member,librarian"><h3>Livres</h3><p id="booksCount">0</p></div>
+            <div class="card" data-roles="member,librarian"><h3>Categories</h3><p id="categoriesCount">0</p></div>
+            <div class="card" data-roles="member,librarian"><h3>Emprunts</h3><p id="borrowsCount">0</p></div>
+            <div class="card" data-roles="member,librarian"><h3>Reservations</h3><p id="reservationsCount">0</p></div>
+            <div class="card" data-roles="member,librarian"><h3>Penalites</h3><p id="penaltiesCount">0</p></div>
         </section>
     </main>
 </body>

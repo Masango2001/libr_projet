@@ -4,7 +4,9 @@ async function loadPenalties() {
 
     try {
 
-        const res = await API.PenaltiesAPI.getAll();
+        const res = isLibrarian()
+            ? await API.PenaltiesAPI.getAll()
+            : await API.PenaltiesAPI.getMy();
 
         const tbody = document.getElementById("penaltiesTable");
         if (!tbody) return;
@@ -15,7 +17,7 @@ async function loadPenalties() {
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${p.user.firstName} ${p.user.lastName}</td>
+                    <td>${p.user ? `${p.user.firstName} ${p.user.lastName}` : "Moi"}</td>
                     <td>${p.borrow._id}</td>
                     <td>${p.amount} F</td>
                     <td>${p.status}</td>
@@ -26,7 +28,7 @@ async function loadPenalties() {
                         </a>
 
                         ${
-                            p.status === "unpaid"
+                            isLibrarian() && p.status === "unpaid"
                                 ? `<button onclick="markPaid('${p._id}')">
                                         Marquer payé
                                    </button>`
@@ -45,6 +47,7 @@ async function loadPenalties() {
 
 /* ================= MARK AS PAID ================= */
 async function markPaid(id) {
+    if (!isLibrarian()) return;
 
     try {
 
@@ -64,14 +67,18 @@ async function loadPenaltyDetails(id) {
 
     try {
 
-        const res = await API.PenaltiesAPI.getAll();
+        const res = isLibrarian()
+            ? await API.PenaltiesAPI.getAll()
+            : await API.PenaltiesAPI.getMy();
 
         const penalty = res.data.find(p => p._id === id);
 
         if (!penalty) return;
 
         document.getElementById("user").textContent =
-            penalty.user.firstName + " " + penalty.user.lastName;
+            penalty.user
+                ? penalty.user.firstName + " " + penalty.user.lastName
+                : "Moi";
 
         document.getElementById("book").textContent =
             penalty.borrow.book || "Livre";

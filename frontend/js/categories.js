@@ -11,15 +11,22 @@ async function loadCategories() {
         table.innerHTML = "";
 
         res.data.forEach(cat => {
+            const actions = [
+                `<a class="btn btn-info" href="category-details.html?id=${cat._id}">Voir</a>`
+            ];
+
+            if (isLibrarian()) {
+                actions.push(`<a class="btn btn-warning" href="category-edit.html?id=${cat._id}">Modifier</a>`);
+                actions.push(`<button class="btn btn-danger" onclick="archiveCategory('${cat._id}')">Archiver</button>`);
+            }
+
             table.innerHTML += `
                 <tr>
                     <td>${cat.name}</td>
                     <td>${cat.description || "-"}</td>
                     <td>${cat.isActive ? "Actif" : "Archive"}</td>
                     <td class="actions">
-                        <a class="btn btn-info" href="category-details.html?id=${cat._id}">Voir</a>
-                        <a class="btn btn-warning" href="category-edit.html?id=${cat._id}">Modifier</a>
-                        <button class="btn btn-danger" onclick="archiveCategory('${cat._id}')">Archiver</button>
+                        ${actions.join("")}
                     </td>
                 </tr>
             `;
@@ -64,6 +71,7 @@ async function updateCategory(e, id) {
 }
 
 async function archiveCategory(id) {
+    if (!isLibrarian()) return;
     if (!confirm("Voulez-vous archiver cette categorie ?")) return;
 
     try {
@@ -108,9 +116,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("editForm");
 
     if (document.getElementById("catTable")) loadCategories();
-    if (createForm) createForm.addEventListener("submit", createCategory);
+    if (createForm) {
+        requireRole("librarian");
+        createForm.addEventListener("submit", createCategory);
+    }
     if (id && document.querySelector(".details-card")) loadCategoryDetails(id);
     if (id && editForm) {
+        requireRole("librarian");
         loadCategoryForEdit(id);
         editForm.addEventListener("submit", (e) => updateCategory(e, id));
     }

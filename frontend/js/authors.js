@@ -15,15 +15,22 @@ async function loadAuthors() {
         table.innerHTML = "";
 
         res.data.forEach(author => {
+            const actions = [
+                `<a class="btn btn-info" href="author-details.html?id=${author._id}">Voir</a>`
+            ];
+
+            if (isLibrarian()) {
+                actions.push(`<a class="btn btn-warning" href="author-edit.html?id=${author._id}">Modifier</a>`);
+                actions.push(`<button class="btn btn-danger" onclick="archiveAuthor('${author._id}')">Archiver</button>`);
+            }
+
             table.innerHTML += `
                 <tr>
                     <td>${authorName(author)}</td>
                     <td>${author.nationality || "-"}</td>
                     <td>${author.isActive ? "Actif" : "Archive"}</td>
                     <td class="actions">
-                        <a class="btn btn-info" href="author-details.html?id=${author._id}">Voir</a>
-                        <a class="btn btn-warning" href="author-edit.html?id=${author._id}">Modifier</a>
-                        <button class="btn btn-danger" onclick="archiveAuthor('${author._id}')">Archiver</button>
+                        ${actions.join("")}
                     </td>
                 </tr>
             `;
@@ -34,6 +41,7 @@ async function loadAuthors() {
 }
 
 async function archiveAuthor(id) {
+    if (!isLibrarian()) return;
     if (!confirm("Voulez-vous archiver cet auteur ?")) return;
 
     try {
@@ -119,9 +127,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const editForm = document.getElementById("editAuthorForm");
 
     if (document.getElementById("authorsTable")) loadAuthors();
-    if (createForm) createForm.addEventListener("submit", createAuthor);
+    if (createForm) {
+        requireRole("librarian");
+        createForm.addEventListener("submit", createAuthor);
+    }
     if (id && document.getElementById("name")) loadAuthorDetails(id);
     if (id && editForm) {
+        requireRole("librarian");
         loadAuthorForEdit(id);
         editForm.addEventListener("submit", (e) => updateAuthor(e, id));
     }
