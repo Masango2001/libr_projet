@@ -6,6 +6,7 @@ const authorize = require("../middleware/roleMiddleware");
 
 const {
     getAuthors,
+    getAuthorById,
     createAuthor,
     updateAuthor,
     archiveAuthor
@@ -24,6 +25,8 @@ const {
  *         description: Liste des auteurs
  */
 router.get("/", protect, authorize("member", "librarian"), getAuthors);
+
+router.get("/:id", protect, authorize("member", "librarian"), getAuthorById);
 
 /**
  * @swagger

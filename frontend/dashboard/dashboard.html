@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Library</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js" defer></script>
+</head>
+<body>
+    <button type="button" class="back-button" onclick="history.length > 1 ? history.back() : window.location.href='../dashboard/dashboard.html'">Retour</button>
+    <aside class="sidebar">
+        <h2>Library</h2>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="../books/books.html">Livres</a>
+        <a href="../authors/authors.html">Auteurs</a>
+        <a href="../categories/categories.html">Categories</a>
+        <a href="../users/users.html">Utilisateurs</a>
+        <a href="../borrows/borrows.html">Emprunts</a>
+        <a href="../reservations/reservations.html">Reservations</a>
+        <a href="../penalties/penalties.html">Penalites</a>
+        <a href="../suggestions/suggestions.html">Suggestions</a>
+        <button onclick="logout()">Deconnexion</button>
+    </aside>
+
+    <main class="main">
+        <div class="page-header">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Vue rapide de l'activite de la bibliotheque.</p>
+            </div>
+        </div>
+
+        <section class="cards">
+            <div class="card"><h3>Utilisateurs</h3><p id="usersCount">0</p></div>
+            <div class="card"><h3>Livres</h3><p id="booksCount">0</p></div>
+            <div class="card"><h3>Categories</h3><p id="categoriesCount">0</p></div>
+            <div class="card"><h3>Emprunts</h3><p id="borrowsCount">0</p></div>
+            <div class="card"><h3>Reservations</h3><p id="reservationsCount">0</p></div>
+            <div class="card"><h3>Penalites</h3><p id="penaltiesCount">0</p></div>
+        </section>
+    </main>
+</body>
+</html>

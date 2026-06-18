@@ -1,6 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const path = require("path");
+const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
 
 // ✅ FIX IMPORTANT
@@ -35,6 +36,13 @@ const app = express();
 // ================= GLOBAL MIDDLEWARES =================
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+    origin: [
+        "http://localhost:5500",
+        "http://127.0.0.1:5500"
+    ],
+    credentials: true
+}));
 
 // ================= HEALTH CHECK =================
 app.get("/", (req, res) => {

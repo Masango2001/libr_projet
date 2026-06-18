@@ -1,68 +1,128 @@
-const API_URL = "http://localhost:5000/api/authors";
-
-function getToken() {
-    return localStorage.getItem("token");
+function getQueryId() {
+    return new URLSearchParams(window.location.search).get("id");
 }
 
-/* ================= GET AUTHORS ================= */
-async function getAuthors() {
-    const res = await fetch(API_URL, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
-
-    return await res.json();
+function authorName(author) {
+    return `${author.firstName || ""} ${author.lastName || ""}`.trim() || "-";
 }
 
-/* ================= CREATE ================= */
-async function createAuthor(data) {
-    const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(data)
-    });
+async function loadAuthors() {
+    const table = document.getElementById("authorsTable");
+    if (!table) return;
 
-    return await res.json();
+    try {
+        const res = await API.AuthorsAPI.getAll();
+        table.innerHTML = "";
+
+        res.data.forEach(author => {
+            table.innerHTML += `
+                <tr>
+                    <td>${authorName(author)}</td>
+                    <td>${author.nationality || "-"}</td>
+                    <td>${author.isActive ? "Actif" : "Archive"}</td>
+                    <td class="actions">
+                        <a class="btn btn-info" href="author-details.html?id=${author._id}">Voir</a>
+                        <a class="btn btn-warning" href="author-edit.html?id=${author._id}">Modifier</a>
+                        <button class="btn btn-danger" onclick="archiveAuthor('${author._id}')">Archiver</button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (err) {
+        notify(err.message, "error");
+    }
 }
 
-/* ================= UPDATE ================= */
-async function updateAuthor(id, data) {
-    const res = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`
-        },
-        body: JSON.stringify(data)
-    });
-
-    return await res.json();
-}
-
-/* ================= ARCHIVE ================= */
 async function archiveAuthor(id) {
-    const res = await fetch(`${API_URL}/${id}/archive`, {
-        method: "PATCH",
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+    if (!confirm("Voulez-vous archiver cet auteur ?")) return;
 
-    return await res.json();
+    try {
+        await API.AuthorsAPI.archive(id);
+        notify("Auteur archive avec succes", "success");
+        loadAuthors();
+    } catch (err) {
+        notify(err.message, "error");
+    }
 }
 
-/* ================= GET BY ID ================= */
-async function getAuthorById(id) {
-    const res = await fetch(API_URL, {
-        headers: {
-            Authorization: `Bearer ${getToken()}`
-        }
-    });
+async function createAuthor(e) {
+    e.preventDefault();
 
-    const data = await res.json();
-    return data.data.find(a => a._id === id);
+    const data = {
+        firstName: document.getElementById("firstName").value.trim(),
+        lastName: document.getElementById("lastName").value.trim(),
+        nationality: document.getElementById("nationality").value.trim(),
+        biography: document.getElementById("biography").value.trim()
+    };
+
+    try {
+        await API.AuthorsAPI.create(data);
+        notify("Auteur cree avec succes", "success");
+        window.location.href = "authors.html";
+    } catch (err) {
+        notify(err.message, "error");
+    }
 }
+
+async function updateAuthor(e, id) {
+    e.preventDefault();
+
+    const data = {
+        firstName: document.getElementById("firstName").value.trim(),
+        lastName: document.getElementById("lastName").value.trim(),
+        nationality: document.getElementById("nationality").value.trim(),
+        biography: document.getElementById("biography").value.trim()
+    };
+
+    try {
+        await API.AuthorsAPI.update(id, data);
+        notify("Auteur mis a jour", "success");
+        window.location.href = "authors.html";
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
+
+async function loadAuthorDetails(id) {
+    try {
+        const res = await API.AuthorsAPI.getById(id);
+        const author = res.data;
+
+        document.getElementById("name").textContent = authorName(author);
+        document.getElementById("nationality").textContent = author.nationality || "-";
+        document.getElementById("biography").textContent = author.biography || "-";
+        document.getElementById("status").textContent = author.isActive ? "Actif" : "Archive";
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
+
+async function loadAuthorForEdit(id) {
+    try {
+        const res = await API.AuthorsAPI.getById(id);
+        const author = res.data;
+
+        document.getElementById("firstName").value = author.firstName || "";
+        document.getElementById("lastName").value = author.lastName || "";
+        document.getElementById("nationality").value = author.nationality || "";
+        document.getElementById("biography").value = author.biography || "";
+    } catch (err) {
+        notify(err.message, "error");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    requireAuth();
+
+    const id = getQueryId();
+    const createForm = document.getElementById("createAuthorForm");
+    const editForm = document.getElementById("editAuthorForm");
+
+    if (document.getElementById("authorsTable")) loadAuthors();
+    if (createForm) createForm.addEventListener("submit", createAuthor);
+    if (id && document.getElementById("name")) loadAuthorDetails(id);
+    if (id && editForm) {
+        loadAuthorForEdit(id);
+        editForm.addEventListener("submit", (e) => updateAuthor(e, id));
+    }
+});

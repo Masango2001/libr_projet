@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check backend/server.js && node --check backend/controllers/authController.js && node --check backend/controllers/authorController.js && node --check backend/controllers/bookController.js && node --check backend/controllers/borrowController.js && node --check backend/controllers/categoryController.js && node --check backend/controllers/penaltyController.js && node --check backend/controllers/reservationController.js && node --check backend/controllers/suggestionController.js && node --check backend/controllers/userController.js && node --check frontend/js/api.js && node --check frontend/js/auth.js && node --check frontend/js/authors.js && node --check frontend/js/books.js && node --check frontend/js/borrows.js && node --check frontend/js/categories.js && node --check frontend/js/dashboard.js && node --check frontend/js/penalties.js && node --check frontend/js/reservations.js && node --check frontend/js/suggestions.js && node --check frontend/js/users.js && node --check frontend/js/utils.js"
   },
   "repository": {
     "type": "git",

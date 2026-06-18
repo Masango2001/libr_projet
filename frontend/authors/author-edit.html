@@ -1,42 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Edit Author</title>
-    <link rel="stylesheet" href="authors.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modifier un auteur</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/authors.css">
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/authors.js" defer></script>
 </head>
 <body>
+    <button type="button" class="back-button" onclick="history.length > 1 ? history.back() : window.location.href='../dashboard/dashboard.html'">Retour</button>
+    <main class="container">
+        <div class="page-header">
+            <div>
+                <h1>Modifier un auteur</h1>
+                <p>Mettez a jour les informations de l'auteur.</p>
+            </div>
+            <a href="authors.html" class="btn btn-secondary">Retour</a>
+        </div>
 
-<div class="form-box">
-    <h2>Edit Author</h2>
+        <form id="editAuthorForm">
+            <label for="firstName">Prenom</label>
+            <input id="firstName" type="text" required>
 
-    <input id="name">
-    <textarea id="bio"></textarea>
+            <label for="lastName">Nom</label>
+            <input id="lastName" type="text" required>
 
-    <button class="btn btn-warning" onclick="update()">Update</button>
-</div>
+            <label for="nationality">Nationalite</label>
+            <input id="nationality" type="text">
 
-<script src="authors.js"></script>
+            <label for="biography">Biographie</label>
+            <textarea id="biography" rows="5"></textarea>
 
-<script>
-const id = new URLSearchParams(location.search).get("id");
-
-async function load() {
-    const a = await getAuthorById(id);
-    document.getElementById("name").value = a.name;
-    document.getElementById("bio").value = a.biography;
-}
-
-async function update() {
-    await updateAuthor(id, {
-        name: document.getElementById("name").value,
-        biography: document.getElementById("bio").value
-    });
-
-    location.href = "authors.html";
-}
-
-load();
-</script>
-
+            <button type="submit" class="btn btn-primary">Mettre a jour</button>
+        </form>
+    </main>
 </body>
 </html>

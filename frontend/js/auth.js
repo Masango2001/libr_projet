@@ -1,109 +1,111 @@
-const API_URL = "http://localhost:5000/api/auth";
-
-/* ======================
+/* =========================
    REGISTER
-====================== */
+========================= */
 
 const registerForm = document.getElementById("registerForm");
 
 if (registerForm) {
+
     registerForm.addEventListener("submit", async (e) => {
+
         e.preventDefault();
 
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const email = document.getElementById("registerEmail").value;
-        const password = document.getElementById("registerPassword").value;
+        const data = {
+            firstName: document.getElementById("firstName").value,
+            lastName: document.getElementById("lastName").value,
+            email: document.getElementById("registerEmail").value,
+            password: document.getElementById("registerPassword").value
+        };
 
         try {
-            const response = await fetch(`${API_URL}/register`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    firstName,
-                    lastName,
-                    email,
-                    password
-                })
-            });
 
-            const data = await response.json();
+            await API.AuthAPI.register(data);
 
-            const msg = document.getElementById("registerMessage");
+            showMessage(
+                "registerMessage",
+                "Inscription réussie",
+                "green"
+            );
 
-            if (data.success) {
-                msg.style.color = "green";
-                msg.textContent = "Inscription réussie.";
+            notify(
+                "Compte créé avec succès",
+                "success"
+            );
 
-                setTimeout(() => {
-                    window.location.href = "login.html";
-                }, 1500);
-            } else {
-                msg.style.color = "red";
-                msg.textContent = data.message;
-            }
+            setTimeout(() => {
+                window.location.href = "login.html";
+            }, 1000);
 
-        } catch (error) {
-            document.getElementById("registerMessage").textContent =
-                "Erreur serveur.";
+        } catch (err) {
+
+            showMessage(
+                "registerMessage",
+                err.message,
+                "red"
+            );
+
+            notify(
+                err.message,
+                "error"
+            );
         }
     });
 }
 
-/* ======================
+
+/* =========================
    LOGIN
-====================== */
+========================= */
 
 const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
+
     loginForm.addEventListener("submit", async (e) => {
+
         e.preventDefault();
 
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
+        const data = {
+            email: document.getElementById("loginEmail").value,
+            password: document.getElementById("loginPassword").value
+        };
 
         try {
-            const response = await fetch(`${API_URL}/login`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email,
-                    password
-                })
-            });
 
-            const data = await response.json();
+            const res = await API.AuthAPI.login(data);
 
-            const msg = document.getElementById("loginMessage");
+            setAuth(
+                res.user,
+                res.token
+            );
 
-            if (data.success) {
+            showMessage(
+                "loginMessage",
+                "Connexion réussie",
+                "green"
+            );
 
-                localStorage.setItem("token", data.token);
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(data.user)
-                );
+            notify(
+                `Bienvenue ${res.user.firstName}`,
+                "success"
+            );
 
-                msg.style.color = "green";
-                msg.textContent = "Connexion réussie.";
+            setTimeout(() => {
+                window.location.href = "../dashboard/dashboard.html";
+            }, 1000);
 
-                setTimeout(() => {
-                    window.location.href = "index.html";
-                }, 1000);
+        } catch (err) {
 
-            } else {
-                msg.style.color = "red";
-                msg.textContent = data.message;
-            }
+            showMessage(
+                "loginMessage",
+                err.message,
+                "red"
+            );
 
-        } catch (error) {
-            document.getElementById("loginMessage").textContent =
-                "Erreur serveur.";
+            notify(
+                err.message,
+                "error"
+            );
         }
     });
 }

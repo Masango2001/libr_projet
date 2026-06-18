@@ -16,6 +16,33 @@ const getCategories = async (req, res, next) => {
     }
 };
 
+const getCategoryById = async (req, res, next) => {
+    try {
+        const filter = { _id: req.params.id };
+
+        if (req.user.role !== "librarian") {
+            filter.isActive = true;
+        }
+
+        const category = await Category.findOne(filter);
+
+        if (!category) {
+            return res.status(404).json({
+                success: false,
+                message: "Categorie introuvable."
+            });
+        }
+
+        res.json({
+            success: true,
+            data: category
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 const createCategory = async (req, res, next) => {
     try {
         const category = await Category.create(req.body);
@@ -81,4 +108,4 @@ const archiveCategory = async (req, res, next) => {
     }
 };
 
-module.exports = { getCategories, createCategory, updateCategory, archiveCategory };
+module.exports = { getCategories, getCategoryById, createCategory, updateCategory, archiveCategory };

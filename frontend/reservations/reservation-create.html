@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creer reservation</title>
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/reservations.css">
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/reservations.js" defer></script>
+</head>
+<body>
+    <button type="button" class="back-button" onclick="history.length > 1 ? history.back() : window.location.href='../dashboard/dashboard.html'">Retour</button>
+    <main class="container">
+        <div class="page-header">
+            <div>
+                <h1>Nouvelle reservation</h1>
+                <p>Choisissez un livre disponible.</p>
+            </div>
+            <a href="reservations.html" class="btn btn-secondary">Retour</a>
+        </div>
+
+        <form id="reservationForm">
+            <label for="book">Livre</label>
+            <select id="book" required></select>
+
+            <button type="submit" class="btn btn-primary">Reserver</button>
+        </form>
+    </main>
+</body>
+</html>

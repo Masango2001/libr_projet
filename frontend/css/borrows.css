@@ -1,0 +1,43 @@
+body{
+    font-family: Arial, sans-serif;
+    margin:30px;
+}
+
+h2{
+    color:#1e3a8a;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table th,
+table td{
+    border:1px solid #ddd;
+    padding:10px;
+}
+
+table th{
+    background:#1e3a8a;
+    color:white;
+}
+
+button{
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+.card{
+    border:1px solid #ddd;
+    padding:20px;
+    border-radius:8px;
+    max-width:500px;
+}

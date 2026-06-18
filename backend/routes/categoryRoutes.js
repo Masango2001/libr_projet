@@ -6,6 +6,7 @@ const authorize = require("../middleware/roleMiddleware");
 
 const {
     getCategories,
+    getCategoryById,
     createCategory,
     updateCategory,
     archiveCategory
@@ -31,6 +32,8 @@ const {
  *         description: Liste des catégories
  */
 router.get("/", protect, authorize("member", "librarian"), getCategories);
+
+router.get("/:id", protect, authorize("member", "librarian"), getCategoryById);
 
 /**
  * @swagger

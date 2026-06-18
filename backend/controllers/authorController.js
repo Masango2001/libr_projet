@@ -16,6 +16,33 @@ const getAuthors = async (req, res, next) => {
     }
 };
 
+const getAuthorById = async (req, res, next) => {
+    try {
+        const filter = { _id: req.params.id };
+
+        if (req.user.role !== "librarian") {
+            filter.isActive = true;
+        }
+
+        const author = await Author.findOne(filter);
+
+        if (!author) {
+            return res.status(404).json({
+                success: false,
+                message: "Auteur introuvable."
+            });
+        }
+
+        res.json({
+            success: true,
+            data: author
+        });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
 const createAuthor = async (req, res, next) => {
     try {
         const author = await Author.create(req.body);
@@ -81,4 +108,4 @@ const archiveAuthor = async (req, res, next) => {
     }
 };
 
-module.exports = { getAuthors, createAuthor, updateAuthor, archiveAuthor };
+module.exports = { getAuthors, getAuthorById, createAuthor, updateAuthor, archiveAuthor };

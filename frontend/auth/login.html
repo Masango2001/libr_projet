@@ -4,29 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="css/auth.css">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/auth.css">
+    <script src="../js/config.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/auth.js" defer></script>
 </head>
 <body>
+    <button type="button" class="back-button" onclick="history.length > 1 ? history.back() : window.location.href='../dashboard/dashboard.html'">Retour</button>
+    <main class="auth-container">
+        <h1>Connexion</h1>
 
-<div class="auth-container">
-    <h2>Connexion</h2>
+        <form id="loginForm">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" required>
 
-    <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email" required>
+            <label for="loginPassword">Mot de passe</label>
+            <input type="password" id="loginPassword" required>
 
-        <input type="password" id="loginPassword" placeholder="Mot de passe" required>
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
 
-        <button type="submit">Se connecter</button>
-    </form>
-
-    <p id="loginMessage"></p>
-
-    <p>
-        Pas de compte ?
-        <a href="register.html">Créer un compte</a>
-    </p>
-</div>
-
-<script src="js/auth.js"></script>
+        <p id="loginMessage"></p>
+        <p>Pas de compte ? <a href="register.html">Creer un compte</a></p>
+    </main>
 </body>
 </html>
