@@ -1,5 +1,23 @@
 
 /* ================= LOAD PENALTIES ================= */
+
+const PENALTY_STATUS_LABELS = {
+    unpaid: "Non payee",
+    paid: "Payee"
+};
+
+const PENALTY_STATUS_CLASSES = {
+    unpaid: "status-unpaid",
+    paid: "status-paid"
+};
+
+function renderPenaltyStatus(status) {
+    const label = PENALTY_STATUS_LABELS[status] || status || "-";
+    const statusClass = PENALTY_STATUS_CLASSES[status] || "status-unpaid";
+
+    return `<span class="status-badge ${statusClass}">${label}</span>`;
+}
+
 async function loadPenalties() {
 
     try {
@@ -20,7 +38,7 @@ async function loadPenalties() {
                     <td>${p.user ? `${p.user.firstName} ${p.user.lastName}` : "Moi"}</td>
                     <td>${p.borrow._id}</td>
                     <td>${p.amount} F</td>
-                    <td>${p.status}</td>
+                    <td>${renderPenaltyStatus(p.status)}</td>
                     <td>
 
                         <a href="penalty-details.html?id=${p._id}">
@@ -29,7 +47,7 @@ async function loadPenalties() {
 
                         ${
                             isLibrarian() && p.status === "unpaid"
-                                ? `<button onclick="markPaid('${p._id}')">
+                                ? `<button type="button" class="btn btn-success btn-sm" onclick="markPaid('${p._id}')">
                                         Marquer payé
                                    </button>`
                                 : ""
@@ -89,8 +107,8 @@ async function loadPenaltyDetails(id) {
         document.getElementById("amount").textContent =
             penalty.amount;
 
-        document.getElementById("status").textContent =
-            penalty.status;
+        document.getElementById("status").innerHTML =
+            renderPenaltyStatus(penalty.status);
 
     } catch (err) {
         notify(err.message, "error");

@@ -1,5 +1,40 @@
 /* ================= LIST ================= */
 
+const BORROW_STATUS_LABELS = {
+    borrowed: "En cours",
+    returned: "Retourne",
+    overdue: "En retard"
+};
+
+const BORROW_STATUS_CLASSES = {
+    borrowed: "status-borrowed",
+    returned: "status-returned",
+    overdue: "status-overdue"
+};
+
+function renderBorrowStatus(status) {
+    const label = BORROW_STATUS_LABELS[status] || status || "-";
+    const statusClass = BORROW_STATUS_CLASSES[status] || "status-borrowed";
+
+    return `<span class="status-badge ${statusClass}">${label}</span>`;
+}
+
+function renderBorrowActions(borrow) {
+    const actions = [
+        `<a href="borrow-details.html?id=${borrow._id}">Voir</a>`
+    ];
+
+    if (["borrowed", "overdue"].includes(borrow.status)) {
+        actions.push(`
+            <button type="button" class="btn btn-success btn-sm" onclick="returnBook('${borrow._id}', true)">
+                Marquer retourne
+            </button>
+        `);
+    }
+
+    return `<div class="actions">${actions.join("")}</div>`;
+}
+
 async function loadBorrows() {
     const table = document.getElementById("borrowsTableBody");
     if (!table) return;
@@ -13,14 +48,6 @@ async function loadBorrows() {
         table.innerHTML = "";
 
         res.data.forEach(borrow => {
-            const actions = [
-                `<a href="borrow-details.html?id=${borrow._id}">Voir</a>`
-            ];
-
-            if (["borrowed", "overdue"].includes(borrow.status)) {
-                actions.push(`<a href="borrow-return.html?id=${borrow._id}">Retour</a>`);
-            }
-
             table.innerHTML += `
                 <tr>
 
@@ -43,11 +70,11 @@ async function loadBorrows() {
                     </td>
 
                     <td>
-                        ${borrow.status}
+                        ${renderBorrowStatus(borrow.status)}
                     </td>
 
                     <td>
-                        ${actions.join("")}
+                        ${renderBorrowActions(borrow)}
                     </td>
 
                 </tr>
@@ -119,8 +146,13 @@ async function loadBorrowDetails(id) {
         document.getElementById("dueDate").textContent =
             formatDate(borrow.dueDate);
 
-        document.getElementById("status").textContent =
-            borrow.status;
+        document.getElementById("status").innerHTML =
+            renderBorrowStatus(borrow.status);
+
+        const actions = document.getElementById("borrowActions");
+        if (actions) {
+            actions.innerHTML = renderBorrowActions(borrow);
+        }
 
     } catch (err) {
 
@@ -130,7 +162,7 @@ async function loadBorrowDetails(id) {
 
 /* ================= RETURN ================= */
 
-async function returnBook(id) {
+async function returnBook(id, stayOnPage = false) {
 
     try {
 
@@ -141,6 +173,16 @@ async function returnBook(id) {
             res.message,
             "success"
         );
+
+        if (stayOnPage) {
+            loadBorrows();
+
+            if (document.getElementById("status")) {
+                loadBorrowDetails(id);
+            }
+
+            return;
+        }
 
         window.location.href =
             "borrows.html";
@@ -194,6 +236,8 @@ async function loadBooksSelect() {
 document.addEventListener(
     "DOMContentLoaded",
     () => {
+
+        requireAuth();
 
         loadBorrows();
 
